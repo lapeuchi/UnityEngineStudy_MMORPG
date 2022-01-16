@@ -5,8 +5,13 @@ using UnityEngine;
 public class Managers : MonoBehaviour
 {
     static Managers s_instance; // 유일성이 보장됨
-    public static Managers Instance { get { Init(); return s_instance; } } // 유일한 매니저를 갖고온다.
-    
+    static Managers Instance { get { Init(); return s_instance; } } // 유일한 매니저를 갖고온다.
+
+    InputManager _input = new InputManager();
+    ResourcesManager _resources = new ResourcesManager();
+    public static InputManager Input { get { return Instance._input; } }
+    public static ResourcesManager Resource { get { return Instance._resources; } }
+
     void Start()
     {
         // 초기화
@@ -15,7 +20,7 @@ public class Managers : MonoBehaviour
 
     void Update()
     {
-        
+        _input.OnUpdate();     
     }
 
     static void Init()
