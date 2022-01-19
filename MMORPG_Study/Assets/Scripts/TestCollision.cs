@@ -13,7 +13,7 @@ public class TestCollision : MonoBehaviour
     {
         Debug.Log($"Trigger @ {other.gameObject.name} !");
     }
-
+    
     void Update()
     {
         // Local <-> World <-> (Viewport, Screen(화면))
@@ -26,25 +26,14 @@ public class TestCollision : MonoBehaviour
 
             Debug.DrawRay(Camera.main.transform.position, ray.direction * 100, Color.red, 1.0f);
 
+            LayerMask mask = LayerMask.GetMask("Monster") | LayerMask.GetMask("Wall");
+           // int mask = (1 << 8) | (1 << 9); //Layers 번호에 따라 ( 1 << 레이어 번호 ) 쉬프트 연산.
+
             RaycastHit hit;
-            if(Physics.Raycast(ray, out hit, 100.0f))
+            if(Physics.Raycast(ray, out hit, 100.0f, mask))
             {
-                Debug.Log($"Raycast Camera @ {hit.collider.gameObject.name}");
+                Debug.Log($"Raycast Camera @ {hit.collider.gameObject.name} {hit.collider.gameObject.tag}");
             }
         }
-
-        //if(Input.GetMouseButtonDown(0))
-        //{       
-        //    Vector3 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
-        //    Vector3 dir = mousePos - Camera.main.transform.position;
-        //    dir = dir.normalized;
-
-        //    Debug.DrawRay(Camera.main.transform.position, dir * 100f, Color.red, 1.0f);
-        //    RaycastHit hit;
-        //    if (Physics.Raycast(Camera.main.transform.position, dir, out hit, 100f))
-        //    {
-        //        Debug.Log($"Raycast Camera @ {hit.collider.gameObject.name}");
-        //    }
-        //}
     }
 }
