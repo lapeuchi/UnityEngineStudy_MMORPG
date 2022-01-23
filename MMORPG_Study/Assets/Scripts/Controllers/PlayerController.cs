@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour
         //Managers.Input.KeyAction += OnKeyboard;
         Managers.Input.MouseAction -= OnMouseClicked;
         Managers.Input.MouseAction += OnMouseClicked;
+
+        Managers.Resource.Instantiate("UI/UI_Button");
     }
 
     public enum PlayerState
@@ -71,7 +73,6 @@ public class PlayerController : MonoBehaviour
         }
         
     }
-
     void OnKeyboard()
     {
         if (Input.GetKey(KeyCode.W))
