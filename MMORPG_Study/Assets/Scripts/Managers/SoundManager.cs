@@ -22,6 +22,8 @@ public class SoundManager : MonoBehaviour
             {
                 GameObject go = new GameObject { name = soundNames[i] };
                 _audioSources[i] = go.AddComponent<AudioSource>();
+                go.GetComponent<AudioSource>().spatialBlend = 1;
+                go.GetComponent<AudioSource>().rolloffMode = AudioRolloffMode.Custom;
                 go.transform.parent = root.transform;
             }
 
