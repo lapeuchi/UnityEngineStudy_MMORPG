@@ -3,61 +3,69 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace ServerCore
-{
-    // 메모리 배리어 
-    // A) 코드 재배치 억제
-    // B) 가시성
+{  
+    class SpinLock
+    {
+        volatile int _locked = 0;
+        
+        public void Acouire()
+        {
+            while (true)
+            {
+                //int original = Interlocked.Exchange(ref _locked, 1);
+                //if (original == 0)
+                //    break;
 
-    // 1) Full Memory Barrier (ASM NFENCE, C# Thread.MemoryBarrier) : Store/Load 둘다 막는다.
-    // 2) Store Memory Barrier (ASM SFENCE) : Store만 막는다.
-    // 2) Load Memory Barrier (ASM LFENCE) : Load만 막는다.
+                int expected = 0;
+                int desired = 1;
+                if (Interlocked.CompareExchange(ref _locked, desired, expected) == expected)
+                    break;
+
+            }        
+        }
+
+        public void Release()
+        {
+            _locked = 0;
+        }
+    }
+
     class Program
     {
-        static int x = 0;
-        static int y = 0;
-        static int r1 = 0;
-        static int r2 = 0;
+        static int _num = 0;
+        static SpinLock _lock = new SpinLock();
 
         static void Thread_1()
         {
-            y = 1; // Store y
-
-            // 순서 변경 방지선----------------------
-            Thread.MemoryBarrier();
-
-            r1 = x; // Load x
+            for(int i = 0; i < 100000; i++)
+            {
+                _lock.Acouire();
+                _num++;
+                _lock.Release();
+            }
         }
 
         static void Thread_2()
         {
-            x = 1; // Store x
-
-            // 순서 변경 방지선----------------------
-            Thread.MemoryBarrier();
-
-            r2 = y; // Load y
+            for (int i = 0; i < 100000; i++)
+            {
+                _lock.Acouire();
+                _num--;
+                _lock.Release();
+            }
         }
 
         static void Main(string[] args)
         {
-            int count = 0;
-            while (true)
-            {
-                count++;
-                x = y = r1 = r2 = 0;
+            Task t1 = new Task(Thread_1);
+            Task t2 = new Task(Thread_2);
 
-                Task t1 = new Task(Thread_1);
-                Task t2 = new Task(Thread_2);
-                t1.Start();
-                t2.Start();
+            t1.Start();
+            t2.Start();
 
-                Task.WaitAll(t1, t2);
+            Task.WaitAll(t1, t2);
 
-                if (r1 == 0 && r2 == 0)
-                    break;
-            }
-
-            Console.WriteLine($"{count}번만에 빠져나옴!");
+            Console.WriteLine(_num);
         }
     }
 }
